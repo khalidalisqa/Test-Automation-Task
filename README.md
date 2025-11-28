@@ -1,2 +1,2 @@
 # Test-Automation-Task
-# congigure git in system
+# configure git in system
