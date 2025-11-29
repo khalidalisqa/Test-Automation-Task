@@ -1,28 +1,30 @@
-# Test-Automation-Task — Playwright + TypeScript (POM)
+# 🚀 Test-Automation-Task — Playwright + TypeScript (POM)
 
-This project automates the **end-to-end flight purchase workflow** on [BlazeDemo](https://blazedemo.com) using **Playwright**, **TypeScript**, and a clean **Page Object Model (POM)** structure.
+This project automates the **end-to-end flight purchase workflow** on [BlazeDemo](https://blazedemo.com) using **Playwright**, **TypeScript**, and the **Page Object Model (POM)** pattern.
 
-It covers:
+It includes:
 
-* ✔ Positive flow (valid flight purchase)
-* ✔ Negative validations
-* ✔ Random routes & dynamic inputs
-* ✔ Full assertions at each step
-* ✔ Screenshots and traces on failure
-* ✔ HTML reporting
+* ✔ Full E2E workflow
+* ✔ Assertions at each step
+* ✔ Negative & positive test scenarios
+* ✔ Random test data
+* ✔ Screenshots & trace recording on failures
+* ✔ GitHub CI Pipeline (Playwright tests executed on every push/PR)
+* ✔ Automated HTML Report as pipeline artifact
 
 ---
 
 ## Tech Stack
 
-| Component      | Choice                          |
-| -------------- | ------------------------------- |
-| Language       | TypeScript                      |
-| Framework      | Playwright                      |
-| Design Pattern | Page Object Model (POM)         |
-| Assertions     | Playwright’s built-in `expect`  |
-| Reporting      | Playwright HTML Reporter        |
-| Debugging      | Traces + Screenshots on Failure |
+| Component    | Choice                          |
+| ------------ | ------------------------------- |
+| Language     | TypeScript                      |
+| Framework    | Playwright                      |
+| Architecture | Page Object Model (POM)         |
+| Test Runner  | Playwright Test Runner          |
+| Reporting    | Playwright HTML Reporter        |
+| CI Pipeline  | GitHub Actions                  |
+| Debugging    | Traces + Screenshots on Failure |
 
 ---
 
@@ -30,20 +32,23 @@ It covers:
 
 ```
 /tests
-│── purchase-flight.spec.ts        → Main test suite (positive + negative tests)
+│── purchase-flight.spec.ts             → Main test suite
 
-/pages/
-│── HomePage.ts                     → City selection, navigation
-│── FlightsPage.ts                  → Flight list & selection
-│── PurchasePage.ts                 → Purchase form + confirmation checks
+/pages
+│── HomePage.ts                         → City selection
+│── FlightsPage.ts                      → Flight list handling
+│── PurchasePage.ts                     → Purchase form & validations
 
-/utils/
-└── dataUtils.ts                    → City lists, allowed routes, random helpers
+/utils
+│── dataUtils.ts                        → City lists, valid routes, random functions
+
+/.github/workflows
+│── playwright.yml                      → GitHub CI pipeline for Playwright
 ```
 
 ---
 
-## Installation
+# Installation
 
 Install dependencies:
 
@@ -52,7 +57,7 @@ npm install
 npx playwright install
 ```
 
-(Optional) Install system dependencies:
+(Optional) Install browser dependencies:
 
 ```bash
 npx playwright install --with-deps
@@ -60,27 +65,21 @@ npx playwright install --with-deps
 
 ---
 
-## Run Tests
+# Run Tests
 
-Run all tests:
+Run everything:
 
 ```bash
 npx playwright test
 ```
 
-Run with browser UI:
+Run with visible browser:
 
 ```bash
 npx playwright test --headed
 ```
 
-Run a specific test:
-
-```bash
-npx playwright test tests/purchase-flight.spec.ts
-```
-
-Interactive UI mode:
+Run in UI mode:
 
 ```bash
 npx playwright test --ui
@@ -88,9 +87,7 @@ npx playwright test --ui
 
 ---
 
-## View Test Report
-
-After execution:
+# View Report
 
 ```bash
 npx playwright show-report
@@ -98,111 +95,150 @@ npx playwright show-report
 
 ---
 
-## Test Coverage Summary
+# Test Coverage Summary
 
-### **Positive Tests**
+### **Positive Scenarios**
 
-1. **Valid Flight Purchase — Boston → Berlin**
-2. **Random Flight Purchase — random departure, destination, and flight**
+✔ Valid purchase Boston → Berlin
+✔ Fully random purchase (random departure, destination, flight)
 
-### **Negative Validation Tests**
+### **Negative Scenarios**
 
-1. **Same Departure & Destination** → throws error
-2. **Invalid Departure City** → throws error
-3. **Invalid Destination City** → throws error
+❌ Same departure and destination → throws validation error
+❌ Invalid departure city → throws error
+❌ Invalid destination city → throws error
 
-Each negative test uses:
+Uses:
 
 ```ts
-await expect(...).rejects.toThrow("specific error message")
+await expect(...).rejects.toThrow();
 ```
 
 ---
 
-## Core Workflow (`purchaseEndToEnd()`)
+# Core Workflow (`purchaseEndToEnd()`)
 
-### Input Validation
+### **1. Input Validation**
 
-* Ensures departure city is allowed
-* Ensures destination belongs to that route
-* Prevents using the same city for both fields
+* Checks if departure city is valid
+* Ensures destination exists for selected route
+* Prevents same city for both fields
 
-### Randomization Logic
+### **2. Auto-Randomization (Optional)**
 
-If parameters are missing:
+If parameters not provided:
 
-* Random valid departure city
-* Random valid destination city
-* Random flight index
+✔ Random valid departure city
+✔ Random valid destination based on route map
+✔ Random flight row
 
-### Assertions Added in Workflow
+### **3. Assertions**
 
-* Home page URL loads correctly
-* Selected cities are reflected in dropdowns
-* Flight table is visible
-* Purchase form appears
-* Purchase confirmation contains:
+* Home page loads
+* Dropdown values match expected
+* Flight table displays correctly
+* Form fields exist
+* Confirmation page contains:
 
-  * Correct header text
-  * Price greater than zero
+  * Valid ID
+  * Non-zero purchase amount
 
-### Flight Selection
+### **4. Debugging Tools**
 
-* Waits for flight table
-* Clicks row by index
+On failure, pipeline and local run save:
 
-### Purchase Form
-
-* Auto-generates random user data
-* Fills all mandatory fields
-* Validates purchase summary page
+* Screenshot
+* Trace file (zip)
 
 ---
 
-## Debugging Features
+# GitHub Actions Pipeline (CI/CD)
 
-Every failing test automatically stores:
+This repository includes a **complete GitHub Actions pipeline** for Playwright.
 
-* **Screenshot** → `screenshots/testName.png`
-* **Trace file** → `traces/testName.zip`
+Path:
 
-This allows detailed debugging in Playwright Trace Viewer.
+```
+.github/workflows/playwright.yml
+```
+
+## 🛠 What the GitHub Pipeline Does
+
+### ✔ Runs automatically on:
+
+* Every **push**
+* Every **pull request**
+* Manually via **workflow dispatch**
+
+### ✔ Pipeline Steps:
+
+1️⃣ **Checkout repository**
+
+```yaml
+- uses: actions/checkout@v3
+```
+
+2️⃣ **Setup Node.js environment**
+
+```yaml
+- uses: actions/setup-node@v3
+  with:
+    node-version: 18
+```
+
+3️⃣ **Install dependencies**
+
+```yaml
+- run: npm install
+```
+
+4️⃣ **Install Playwright browsers**
+
+```yaml
+- run: npx playwright install --with-deps
+```
+
+5️⃣ **Execute Playwright tests**
+
+```yaml
+- run: npx playwright test
+```
+
+6️⃣ **Upload HTML Report (Always saved even on failure)**
+
+```yaml
+- uses: actions/upload-artifact@v3
+  if: always()
+  with:
+    name: playwright-report
+    path: playwright-report
+    retention-days: 10
+```
+
+# CI Benefits
+
+✔ Tests run automatically in the cloud
+✔ No local environment dependency
+✔ Full logs, screenshots, and traces stored as artifacts
+✔ Ensures code stability before merging
+✔ Enables team-wide visibility on failures
 
 ---
 
-## How POM Architecture Works
-
-### **HomePage**
-
-* Visit BlazeDemo homepage
-* Select departure & destination
-* Submit flight search
-
-### **FlightsPage**
-
-* Wait for flights table
-* Select flight row based on index
-
-### **PurchasePage**
-
-* Fill full purchase form
-* Submit order
-* Assert purchase confirmation
-
----
-
-## Assumptions
-
-* BlazeDemo site is stable
-* All allowed cities are defined in `dataUtils.ts`
-* Route mapping (`flightsMap`) controls valid combinations
-* Flight prices may vary, so only basic validation is applied
-
----
-
-## Author
+# Author
 
 **Automation Engineer:** Khalid Ali
-**Framework:** Playwright + TypeScript
-**Architecture:** Page Object Model (POM)
-**Task:** Flight Purchase Automation Framework
+**Framework:** Playwright + TypeScript + POM
+**CI/CD:** GitHub Actions Pipeline
+**Assignment:** Flight Purchase Automation
+
+---
+
+If you want, I can also add:
+
+🔹 Badge at top of README (build passing)
+🔹 Pipeline email notifications
+🔹 BrowserStack integration in CI
+🔹 Docker workflow
+
+Just say the word!
