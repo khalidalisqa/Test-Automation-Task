@@ -1,20 +1,28 @@
-# Test-Automation-Task
+# Test-Automation-Task — Playwright + TypeScript (POM)
 
-This project automates the **end-to-end flight purchase flow** on [BlazeDemo](https://blazedemo.com) using **Playwright + TypeScript** with a **Page Object Model (POM)** architecture.
+This project automates the **end-to-end flight purchase workflow** on [BlazeDemo](https://blazedemo.com) using **Playwright**, **TypeScript**, and a clean **Page Object Model (POM)** structure.
 
-It includes **positive and negative tests**, randomization, validations, and simple reporting.
+It covers:
+
+* ✔ Positive flow (valid flight purchase)
+* ✔ Negative validations
+* ✔ Random routes & dynamic inputs
+* ✔ Full assertions at each step
+* ✔ Screenshots and traces on failure
+* ✔ HTML reporting
 
 ---
 
 ## Tech Stack
 
-| Component      | Choice                            |
-| -------------- | --------------------------------- |
-| Language       | TypeScript                        |
-| Framework      | Playwright                        |
-| Design Pattern | Page Object Model (POM)           |
-| Assertions     | Playwright Test built-in `expect` |
-| Reporting      | Playwright HTML Reporter          |
+| Component      | Choice                          |
+| -------------- | ------------------------------- |
+| Language       | TypeScript                      |
+| Framework      | Playwright                      |
+| Design Pattern | Page Object Model (POM)         |
+| Assertions     | Playwright’s built-in `expect`  |
+| Reporting      | Playwright HTML Reporter        |
+| Debugging      | Traces + Screenshots on Failure |
 
 ---
 
@@ -22,15 +30,15 @@ It includes **positive and negative tests**, randomization, validations, and sim
 
 ```
 /tests
-│── purchase-flight.spec.ts        → Main test suite
+│── purchase-flight.spec.ts        → Main test suite (positive + negative tests)
 
 /pages/
-│── HomePage.ts                     → Select cities, navigate
-│── FlightsPage.ts                  → Flight list, choose flight
-│── PurchasePage.ts                 → Form filling & validation
+│── HomePage.ts                     → City selection, navigation
+│── FlightsPage.ts                  → Flight list & selection
+│── PurchasePage.ts                 → Purchase form + confirmation checks
 
 /utils/
-└── dataUtils.ts                    → City lists, flight map, random utilities
+└── dataUtils.ts                    → City lists, allowed routes, random helpers
 ```
 
 ---
@@ -44,7 +52,7 @@ npm install
 npx playwright install
 ```
 
-(Optional) Install system dependencies for browsers:
+(Optional) Install system dependencies:
 
 ```bash
 npx playwright install --with-deps
@@ -54,25 +62,25 @@ npx playwright install --with-deps
 
 ## Run Tests
 
-Run **all test suites**:
+Run all tests:
 
 ```bash
 npx playwright test
 ```
 
-Run **headed mode** (browser visible):
+Run with browser UI:
 
 ```bash
 npx playwright test --headed
 ```
 
-Run a **specific test file**:
+Run a specific test:
 
 ```bash
 npx playwright test tests/purchase-flight.spec.ts
 ```
 
-Run tests **with UI mode**:
+Interactive UI mode:
 
 ```bash
 npx playwright test --ui
@@ -82,7 +90,7 @@ npx playwright test --ui
 
 ## View Test Report
 
-After test execution, generate and view HTML report:
+After execution:
 
 ```bash
 npx playwright show-report
@@ -90,86 +98,111 @@ npx playwright show-report
 
 ---
 
-## Test Execution Status
+## Test Coverage Summary
 
-All tests included in the suite:
+### **Positive Tests**
 
-**Positive Tests**:
+1. **Valid Flight Purchase — Boston → Berlin**
+2. **Random Flight Purchase — random departure, destination, and flight**
 
-* Valid Flight Purchase — Boston → Berlin
-* Random Flight Purchase — all parameters random
+### **Negative Validation Tests**
 
-**Negative Tests**:
+1. **Same Departure & Destination** → throws error
+2. **Invalid Departure City** → throws error
+3. **Invalid Destination City** → throws error
 
-* Same Departure & Destination → throws validation error
-* Invalid Departure City → throws error for unsupported city
-* Invalid Destination City → throws error for unsupported route
+Each negative test uses:
+
+```ts
+await expect(...).rejects.toThrow("specific error message")
+```
 
 ---
 
-## Core Functionality (`purchaseEndToEnd()`)
+## Core Workflow (`purchaseEndToEnd()`)
 
-1. **City Validation**
+### Input Validation
 
-   * Ensures departure/destination are valid
-   * Prevents same-city inputs
+* Ensures departure city is allowed
+* Ensures destination belongs to that route
+* Prevents using the same city for both fields
 
-2. **Randomization**
+### Randomization Logic
 
-   * Random departure city if not provided
-   * Random destination city if not provided
-   * Random flight index if not provided
+If parameters are missing:
 
-3. **Flight Selection**
+* Random valid departure city
+* Random valid destination city
+* Random flight index
 
-   * Waits for flight table to load (explicit wait)
-   * Selects specific or random flight
+### Assertions Added in Workflow
 
-4. **Form Filling**
+* Home page URL loads correctly
+* Selected cities are reflected in dropdowns
+* Flight table is visible
+* Purchase form appears
+* Purchase confirmation contains:
 
-   * Generates random user data for each run
-   * Fills all purchase form fields
+  * Correct header text
+  * Price greater than zero
 
-5. **Assertions**
+### Flight Selection
 
-   * Purchase confirmation page visible
-   * Status = `PendingCapture`
-   * Price > $100
+* Waits for flight table
+* Clicks row by index
+
+### Purchase Form
+
+* Auto-generates random user data
+* Fills all mandatory fields
+* Validates purchase summary page
+
+---
+
+## Debugging Features
+
+Every failing test automatically stores:
+
+* **Screenshot** → `screenshots/testName.png`
+* **Trace file** → `traces/testName.zip`
+
+This allows detailed debugging in Playwright Trace Viewer.
+
+---
+
+## How POM Architecture Works
+
+### **HomePage**
+
+* Visit BlazeDemo homepage
+* Select departure & destination
+* Submit flight search
+
+### **FlightsPage**
+
+* Wait for flights table
+* Select flight row based on index
+
+### **PurchasePage**
+
+* Fill full purchase form
+* Submit order
+* Assert purchase confirmation
 
 ---
 
 ## Assumptions
 
-* BlazeDemo website is stable and accessible.
-* Flight prices may vary; only minimum price is validated.
-* Only departure cities in `dataUtils.ts` are valid.
-* Some cities have limited routes defined in `flightsMap`.
-
----
-
-## How POM Works in This Framework
-
-**HomePage**
-
-* Navigates to BlazeDemo
-* Selects departure & destination
-* Submits search
-
-**FlightsPage**
-
-* Waits for flights table to load
-* Selects flight by row index
-
-**PurchasePage**
-
-* Generates random user data
-* Fills form
-* Validates purchase summary
+* BlazeDemo site is stable
+* All allowed cities are defined in `dataUtils.ts`
+* Route mapping (`flightsMap`) controls valid combinations
+* Flight prices may vary, so only basic validation is applied
 
 ---
 
 ## Author
 
-* Automation Engineer: Khalid Ali
-* Framework: Playwright + TypeScript + POM
-* Company Assignment: Flight Purchase Automation
+**Automation Engineer:** Khalid Ali
+**Framework:** Playwright + TypeScript
+**Architecture:** Page Object Model (POM)
+**Task:** Flight Purchase Automation Framework
