@@ -167,7 +167,6 @@ Path:
 ### ✔ Runs automatically on:
 
 * Every **push**
-* Every **pull request**
 * Manually via **workflow dispatch**
 
 ### ✔ Pipeline Steps:
